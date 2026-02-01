@@ -27,14 +27,11 @@ jobs:
       - name: Configure Poetry
         run: poetry config virtualenvs.create false
 
-    
       - name: Install dependencies (with dev)
         run: poetry install --with dev --no-interaction
 
-  
       - name: Run Ruff
         run: poetry run ruff check .
-
 
       - name: Run Black
         run: poetry run black --check .
