@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "patient_encounter_system", from = "src"}]
+packages = [{include = "*", from = "src"}]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
