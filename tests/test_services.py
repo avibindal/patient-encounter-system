@@ -47,7 +47,8 @@ def test_conflict_detected(real_db_session, doctor, patient):
 
 
 def test_get_appointments_by_date(real_db_session, doctor, patient):
-    today = datetime.now(timezone.utc).date()
+    # schedule for tomorrow to avoid intermittently falling into the past
+    today = (datetime.now(timezone.utc) + timedelta(days=1)).date()
     start_time = datetime.combine(
         today, datetime.min.time(), tzinfo=timezone.utc
     ) + timedelta(hours=10)
