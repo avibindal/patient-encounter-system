@@ -1,0 +1,17 @@
+.env
+.env.*
+# Python
+__pycache__/
+*.py[cod]
+
+# Poetry
+.venv/
+
+# Test artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
