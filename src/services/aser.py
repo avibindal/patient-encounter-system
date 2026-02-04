@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from fastapi import HTTPException
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta, time, timezone
 
 from src.models.models import Appointment, Patient, Doctor
 
@@ -12,22 +12,40 @@ def has_overlapping_appointment(
     db: Session, doctor_id: int, start_time: datetime, duration: int
 ) -> bool:
 
+    # Compute the new appointment end time in Python
     new_end_time = start_time + timedelta(minutes=duration)
 
-    overlapping = (
+    # Fetch candidate appointments for the doctor that start before the new end time.
+    # Then perform an explicit overlap check in Python to avoid DB-specific SQL
+    # functions (works with SQLite, MySQL, etc.). This is efficient enough for
+    # typical clinic loads and keeps behavior consistent across DB backends.
+    candidates = (
         db.query(Appointment)
         .filter(
-            Appointment.doctor_id == doctor_id,
-            Appointment.start_time < new_end_time,
-            func.addtime(
-                Appointment.start_time, func.sec_to_time(Appointment.duration * 60)
-            )
-            > start_time,
+            Appointment.doctor_id == doctor_id, Appointment.start_time < new_end_time
         )
-        .first()
+        .all()
     )
 
-    return overlapping is not None
+    # Ensure comparisons are done with datetimes that share the same tzinfo.
+    tz = start_time.tzinfo or timezone.utc
+
+    for appt in candidates:
+        # Normalize stored appointment start_time to the same timezone as the input start_time
+        if appt.start_time is None:
+            continue
+        if appt.start_time.tzinfo is None:
+            appt_start = appt.start_time.replace(tzinfo=tz)
+        else:
+            appt_start = appt.start_time.astimezone(tz)
+
+        appt_end = appt_start + timedelta(minutes=appt.duration)
+
+        # Overlap exists when existing appt starts before new end and ends after new start
+        if appt_start < new_end_time and appt_end > start_time:
+            return True
+
+    return False
 
 
 def create_appointment(db: Session, appointment_data: AppointmentCreate):
