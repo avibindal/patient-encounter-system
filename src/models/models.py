@@ -68,7 +68,7 @@ class Appointment(Base):
     Represents an appointment between a patient and a doctor.
     """
 
-    __tablename__ = "aviappointments"
+    __tablename__ = "appointmentsavi"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     patient_id: Mapped[int] = mapped_column(ForeignKey("patientsavi.id"))
@@ -77,7 +77,7 @@ class Appointment(Base):
     start_time: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
     )
-    dur_min: Mapped[int] = mapped_column(Integer, nullable=False)
+    duration: Mapped[int] = mapped_column(Integer, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

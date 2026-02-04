@@ -15,7 +15,7 @@ def test_no_conflict(real_db_session, doctor, patient):
         patient_id=patient.id,
         doctor_id=doctor.id,
         start_time=start_time,
-        dur_min=30,
+        duration=30,
         reason="Routine",
     )
     appointment = create_appointment(real_db_session, data)
@@ -31,14 +31,14 @@ def test_conflict_detected(real_db_session, doctor, patient):
         patient_id=patient.id,
         doctor_id=doctor.id,
         start_time=start_time,
-        dur_min=60,
+        duration=60,
         reason="Consult",
     )
     data2 = AppointmentCreate(
         patient_id=patient.id,
         doctor_id=doctor.id,
         start_time=start_time + timedelta(minutes=30),
-        dur_min=30,
+        duration=30,
         reason="Overlap",
     )
     create_appointment(real_db_session, data1)
@@ -56,7 +56,7 @@ def test_get_appointments_by_date(real_db_session, doctor, patient):
         patient_id=patient.id,
         doctor_id=doctor.id,
         start_time=start_time,
-        dur_min=30,
+        duration=30,
         reason="Morning",
     )
     create_appointment(real_db_session, data)
@@ -70,7 +70,7 @@ def test_appointment_in_past_rejected(real_db_session, doctor, patient):
         patient_id=patient.id,
         doctor_id=doctor.id,
         start_time=start_time,
-        dur_min=30,
+        duration=30,
         reason="Past",
     )
     with pytest.raises(HTTPException):

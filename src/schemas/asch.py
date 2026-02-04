@@ -7,7 +7,7 @@ class AppointmentCreate(BaseModel):
     doctor_id: int = Field(gt=0)
     start_time: datetime
     reason: str
-    dur_min: int = Field(ge=15, len=180)
+    duration: int = Field(ge=15, le=180)
 
     @field_validator("start_time")
     @classmethod
@@ -22,7 +22,7 @@ class AppointmentRead(BaseModel):
     patient_id: int
     doctor_id: int
     start_time: datetime
-    dur_min: int
+    duration: int
     created_at: datetime
 
     class Config:

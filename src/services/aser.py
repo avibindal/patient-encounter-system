@@ -9,10 +9,10 @@ from src.schemas.asch import AppointmentCreate
 
 
 def has_overlapping_appointment(
-    db: Session, doctor_id: int, start_time: datetime, dur_min: int
+    db: Session, doctor_id: int, start_time: datetime, duration: int
 ) -> bool:
 
-    new_end_time = start_time + timedelta(minutes=dur_min)
+    new_end_time = start_time + timedelta(minutes=duration)
 
     overlapping = (
         db.query(Appointment)
@@ -20,7 +20,7 @@ def has_overlapping_appointment(
             Appointment.doctor_id == doctor_id,
             Appointment.start_time < new_end_time,
             func.addtime(
-                Appointment.start_time, func.sec_to_time(Appointment.dur_min * 60)
+                Appointment.start_time, func.sec_to_time(Appointment.duration * 60)
             )
             > start_time,
         )
@@ -55,7 +55,7 @@ def create_appointment(db: Session, appointment_data: AppointmentCreate):
         db,
         appointment_data.doctor_id,
         appointment_data.start_time,
-        appointment_data.dur_min,
+        appointment_data.duration,
     ):
         raise HTTPException(
             status_code=409, detail="Doctor already has an overlapping appointment"
@@ -65,7 +65,7 @@ def create_appointment(db: Session, appointment_data: AppointmentCreate):
         patient_id=appointment_data.patient_id,
         doctor_id=appointment_data.doctor_id,
         start_time=appointment_data.start_time,
-        dur_min=appointment_data.dur_min,
+        duration=appointment_data.duration,
         reason=appointment_data.reason,
     )
 
